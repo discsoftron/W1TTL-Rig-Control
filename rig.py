@@ -22,12 +22,20 @@ rigType = "None"
 #rigType = "ICOM"
 
 # Open the serial port
+rigOK = "False"
 rigUSB = "/dev/ttyUSB1"
+rigBaudRate = "19200"
 if (rigType != "None"):
     try:
-        rigSerial = serial.Serial(rigUSB, 19200) 
+        rigSerial = serial.Serial(rigUSB, rigBaudRate) 
+        rigOK = "True"
     except:
         print "Could not open serial port."
+
+if (rigOK == "True"):
+    if (rigType == "ICOM"):
+        rigSerial.setDTR(False) # Prevent the rig from transmitting if DTR is used for transmit
+        rigSerial.setRTS(False) # Prevent the rig from transmitting if RTS is used for transmit
 
 # Set file names.
 motdFile = "motd.txt"
@@ -94,9 +102,22 @@ def shutdown():
 @socketio.on('get_freq', namespace='/rig')
 def getFreq(message):
     if (message['data'] == "True"):
+        if (rigOK == "True"):
+            if (rigType == "ICOM"):
+                frequency = rigSerial.write("\xfe\xfe\x80\x00\x03\xfd")
+                print "Frequency is: " + str(frequency)
+                emit('push_set_freq', {'data': frequency})
+
+@socketio.on('set_freq', namespace='/rig')
+def setFreq(message):
+    if (rigOK == "True"):
         if (rigType == "ICOM"):
-            # frequency = rigSerial.write("\xfe\xfe\x80\x00\x03\xfd")
-            print "Frequency is: " + str(frequency)
+            frequency = message['frequency']
+            hex = itobcd(frequency)
+            serialData = rigSerial.write("\xfe\xfe\x80\x00\x00"+hex.decode('string_escape')+"\xfd")
+            print "Frequency set to " + str(frequency)
+            print "Message echoed is " + str(serialData)
+            
             emit('push_set_freq', {'data': frequency})
 
 @socketio.on('ptt_control', namespace='/rig')

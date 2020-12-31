@@ -166,7 +166,7 @@
 				// If the Set frequency button was pressed, send a set frequency message to the server
 				e.preventDefault();
 				frequency = $("#freq").val();
-				socket.emit('set_freq', {data: frequency});
+				socket.emit('set_freq', {frequency: frequency});
 	            return false;
 				
 			});
