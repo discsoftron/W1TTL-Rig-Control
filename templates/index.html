@@ -33,19 +33,34 @@
             // The callback function is invoked when a connection with the
             // server is established.
             socket.on('connect', function() {
-                //socket.emit('my_event', {data: 'I\'m connected!'});
-				// Ensure the ptt is set to receive
-				//socket.emit('ptt_control', {data: "receive"});
+                // Set the PTT button to be in receive mode
 				$("#ptt_button").removeClass("xmit");
 				$("#ptt_button").addClass("rcv");
 				
-				$('#motd').text("Some woofle jelly cakes would be so nice.")
+				// Get any configuration data
+				socket.emit('get_config', {data: 'True'});
+				
 				
 				// Load the log
 				socket.emit('get_log', {data: 'True'});
 				
 				// Get the frequency
 				socket.emit('get_freq', {data: 'True'});
+            });
+            
+            // If a configuration load event was received, take care of it...
+            socket.on('load_config', function(msg) {
+            	// Hide the frequency buttons if needed
+            	if (msg.rigType == "None") {
+            		$("#set_freq").hide();
+            	
+            	// Set the message of the day (motd)
+            	$('#motd').text(msg.motd)
+            	
+            	// Set the message box
+            	$('textarea#messageBox').val(msg.messageBox);
+            	
+            	}
             });
 			
 			// If a ptt event was received, take care of it...

@@ -1,28 +1,52 @@
 #!/usr/bin/env python
 from threading import Lock
-from flask import Flask, render_template, session, request, \
-    copy_current_request_context
+from flask import Flask, render_template, session, request, copy_current_request_context
 from flask_socketio import SocketIO, emit, disconnect
 import RPi.GPIO as GPIO
 from flask import request
 import datetime, csv, os.path
 import serial
 
-# Set up GPIO stuff
+# Set up GPIO pins on Raspberry Pi
 relay1 = 16 # Pin 16 / GPIO 23
 relay2 = 18 # Pin 18 / GPIO 24
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(relay1, GPIO.OUT)
 GPIO.setup(relay2, GPIO.OUT)
 
-# Set the rig hardware details
-rigSerial = serial.Serial('/dev/ttyUSB1', 19200) 
-rigType = "ICOM"
 
-# Set file names
+# Set rigType to:
+#    "None" for no USB-enabled rig
+#    "ICOM" for IC-7300
+rigType = "None"
+#rigType = "ICOM"
+
+# Open the serial port
+rigUSB = "/dev/ttyUSB1"
+if (rigType != "None"):
+    try:
+        rigSerial = serial.Serial(rigUSB, 19200) 
+    except:
+        print "Could not open serial port."
+
+# Set file names.
+motdFile = "motd.txt"
+messageFile = "message.txt"
 configFileName = "rigControl.cfg"
 logFile = "log.csv"
 tempFileName = "tempFile.txt"
+
+# Check if the log file exists.  If it doesn't, create it...
+if not os.path.isfile(logFile):
+    open(logFile, 'a').close()
+    
+# Check if the motd file exists.  If not, create it...
+if not os.path.isfile(motdFile):
+    open(motdFile, 'a').close()
+    
+# Check if the message box file exists.  If not, create it...
+if not os.path.isfile(messageFile):
+    open(messageFile, 'a').close()
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -35,7 +59,7 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 thread_lock = Lock()
 
-# Initialize relays
+# Initialize relays (setting the GPIO pin LOW will energize the relays)
 GPIO.output(relay1, GPIO.HIGH)
 GPIO.output(relay2, GPIO.HIGH)
 
@@ -117,6 +141,9 @@ def pushCall(message):
 @socketio.on('submit_msg', namespace='/rig')
 def pushMessageBox(message):
     # Write the message to the message box file
+    f = open(messageFile, "w")
+    f.write(message['messageBox'] + "\n")
+    f.close()
 
     # send the message to the form
     emit('push_msg_box', {'messageBox': message['messageBox']}, broadcast=True)
@@ -186,8 +213,6 @@ def entry(message):
     
 @socketio.on('get_log', namespace='/rig')
 def getLog(message):
-    # Get the message from the message box file
-
     # Get the log file and return it to the user
     logLines = []
     with open(logFile, 'r') as fd:
@@ -214,6 +239,25 @@ def getLog(message):
     
     emit('load_log', {'logTable': logTable, 'logCount': logCount})
     
+@socketio.on('get_config', namespace='/rig')
+def getConfig(message):
+    # Get any configuration data
+    
+    # Read the message of the day.  If the file doesn't exist, create it.
+    motd = ""
+    with open (motdFile) as f:
+        motd = f.readline().strip()
+    f.close()
+            
+    # Read the message box file.  If the file doesn't exist, create it.
+    messageBox = ""
+    with open (messageFile) as f:
+        messageBox = f.readline().strip()
+    f.close()
+        
+    # Return the rig usb type and motd
+    emit('load_config', {'rigType': rigType, 'motd': motd, 'messageBox': messageBox})
+
 if __name__ == '__main__':
     socketio.run(app, host="0.0.0.0", port=5000, debug=False)
     
