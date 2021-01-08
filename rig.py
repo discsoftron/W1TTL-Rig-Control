@@ -18,8 +18,8 @@ GPIO.setup(relay2, GPIO.OUT)
 # Set rigType to:
 #    "None" for no USB-enabled rig
 #    "ICOM" for IC-7300
-rigType = "None"
-#rigType = "ICOM"
+#rigType = "None"
+rigType = "ICOM"
 
 # Open the serial port
 rigOK = "False"
@@ -104,9 +104,10 @@ def getFreq(message):
     if (message['data'] == "True"):
         if (rigOK == "True"):
             if (rigType == "ICOM"):
-                frequency = rigSerial.write("\xfe\xfe\x80\x00\x03\xfd")
+                # frequency = rigSerial.write("\xfe\xfe\x80\x00\x03\xfd")
+                frequency = rigSerial.write("\xfe\x70\xe0\x03\xfd")
                 print "Frequency is: " + str(frequency)
-                emit('push_set_freq', {'data': frequency})
+                emit('display_freq', {'freq': frequency})
 
 @socketio.on('set_freq', namespace='/rig')
 def setFreq(message):
@@ -118,7 +119,7 @@ def setFreq(message):
             print "Frequency set to " + str(frequency)
             print "Message echoed is " + str(serialData)
             
-            emit('push_set_freq', {'data': frequency})
+            emit('push_set_freq', {'freq': frequency})
 
 @socketio.on('ptt_control', namespace='/rig')
 def ptt(message):
@@ -245,7 +246,7 @@ def getLog(message):
     # Reformat the log table in html with the most recent entry at the top
     logCount = 0
     rowCount = 1
-    logTable = "<table class=\"table\"><tr id=\"logTableHead\"><th>Frequency</th><th>Mode</th><th>Date</th><th>Time</th><th>Call</th><th>RST Sent</th><th>RST Received</th><th>Class</th><th>QTH</th><th>Received Name</th><th>Operator</th></tr>\n"
+    logTable = "<table class=\"table\"><tr id=\"logTableHead\"><th>Frequency</th><th>Mode</th><th>Date</th><th>Time</th><th>Call</th><th>RST Sent</th><th>RST Received</th><th>Class</th><th>QTH</th><th>Name Received</th><th>Operator</th></tr>\n"
     for row in reversed(logLines):
         newTime = row[3][:2] + ":" + row[3][2:]
         # Fix for old db format that didn't have name and op
@@ -269,7 +270,9 @@ def getConfig(message):
     with open (motdFile) as f:
         motd = f.readline().strip()
     f.close()
-            
+    
+    print "MOTD: " + motd
+    
     # Read the message box file.  If the file doesn't exist, create it.
     messageBox = ""
     with open (messageFile) as f:

@@ -40,12 +40,9 @@
 				// Get any configuration data
 				socket.emit('get_config', {data: 'True'});
 				
-				
 				// Load the log
 				socket.emit('get_log', {data: 'True'});
 				
-				// Get the frequency
-				socket.emit('get_freq', {data: 'True'});
             });
             
             // If a configuration load event was received, take care of it...
@@ -53,14 +50,18 @@
             	// Hide the frequency buttons if needed
             	if (msg.rigType == "None") {
             		$("#set_freq").hide();
+            	}
+            	else {
+            		// Get the frequency
+    				socket.emit('get_freq', {data: 'True'});
+            	}
             	
             	// Set the message of the day (motd)
-            	$('#motd').text(msg.motd)
+            	$('#motd').text(msg.motd);
             	
             	// Set the message box
             	$('textarea#messageBox').val(msg.messageBox);
-            	
-            	}
+
             });
 			
 			// If a ptt event was received, take care of it...
@@ -84,11 +85,13 @@
 			socket.on('mute_control_response', function(msg) {
 				if (msg.data == "mute_on") {
 					// If the server sent a transmit message, change the button color to red
-					$("#mute_status").text("Muted")
+					//$("#mute_status").text("Muted")
+					$("#mute_button").text("Un-Mute");
 				}
 				else if (msg.data == "mute_off") {
 					// If the server sent a receive message, change the button color to green
-					$("#mute_status").text("")
+					//$("#mute_status").text("")
+					$("#mute_button").text("Mute");
 				}
 
             });
@@ -145,10 +148,10 @@
 			
 			// If the frequency was changed, push it to all clients...
 			socket.on('push_set_freq', function(msg) {
-				$('.freq input').val(msg.freq);
+				$('.freq_field input').val(msg.freq);
 				
 				// Animate the call sign text box so that it flashes green
-				$('.freq input').each(function() {
+				$('.freq_field input').each(function() {
 					$(this)
 						.animate({backgroundColor:'green'}, 400, 'linear')
 						.delay(400)
@@ -159,7 +162,8 @@
 			
 			// If a display frequency event was received, take care of it...
 			socket.on('display_freq', function(msg) {
-				$('#freq').text(msg.frequency);
+				$('.freq_field input').val(msg.freq);
+				alert(msg.freq);
 			});
 			
 			$(document).on("click touchstart", "#set_freq", function(e) {
@@ -260,9 +264,10 @@
 	<div class="container">
 	    <div class="pb-2 mt-4 mb-2 border-bottom">
 		    <h1>W1TTL Rig Control</h1>
-		    <p>Async mode is: <b>{{ async_mode }}</b></p>
-		    <h5></b><div id="motd"></div></h5>
+		    <!-- <p>Async mode is: <b>{{ async_mode }}</b></p> -->
+		    <h5><div id="motd"></div></h5>
 		
+			<!--
 			<form class="form-inline">
 				<div class="form-group col-sm-1">
 					<button type="button" class="btn btn-primary mb-2" id="ptt_button">PTT</button>
@@ -278,6 +283,20 @@
 				</div>
 				<div class="form-group col-sm-1">
 					<div id = "mute_status"></div>
+				</div>
+			</form>
+			-->
+			
+			<h2>Rig Controls</h2>
+			
+			<form id="controlsForm">
+				<div class="form-row">
+					<div class="form-group col-sm-2">
+						<button type="button" class="btn btn-primary mb-2" id="ptt_button">PTT</button>
+					</div>
+					<div class="form-group col-sm-2">
+						<button type="button" class="btn btn-primary mb-2" id="mute_button">Mute</button>
+					</div>
 				</div>
 			</form>
 			
@@ -316,9 +335,9 @@
 				<div class="form-row">
 				
 					<div class="form-group col-sm-2">
-						<label for="freq">Frequency</label>
+						<label for="freq_field">Frequency</label>
 						<div class="input-group freqField">
-							<input type="text" id="freq" class="form-control">
+							<input type="text" id="freq_field" class="form-control">
 							<div class="input-group-append">
 								<button type="button" class="btn btn-outline-primary" id="set_freq">Set</button>
 							</div>
