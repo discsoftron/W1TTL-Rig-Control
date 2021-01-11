@@ -24,7 +24,7 @@ The wiring diagram below shows how the Raspberry Pi is connected to the relay bo
 
 ## Software
 
-As root, install Flask and Flask-SocketIO with the following commands:
+It is assumed that you already have Python and PIP installed.  As root, install Flask and Flask-SocketIO with the following commands:
 
     sudo pip install flask
     sudo pip install flask-socketio
