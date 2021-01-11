@@ -18,8 +18,8 @@ GPIO.setup(relay2, GPIO.OUT)
 # Set rigType to:
 #    "None" for no USB-enabled rig
 #    "ICOM" for IC-7300
-#rigType = "None"
-rigType = "ICOM"
+rigType = "None"
+#rigType = "ICOM"
 
 # Open the serial port
 rigOK = "False"
