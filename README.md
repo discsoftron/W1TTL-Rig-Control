@@ -19,3 +19,27 @@ You will have to look up the pinouts on your radio for the mic jack to see which
 
 The wiring diagram below shows how the Raspberry Pi is connected to the relay board:
 ![W1TTL Rig Control_bb](https://user-images.githubusercontent.com/12022870/104232978-18b27500-541f-11eb-8e22-2233f2646915.jpg)
+
+## Software
+
+As root, install Flask with the following commands:
+  sudo pip install flask
+  sudo pip install flask-socketio
+
+Create a user called "rig" and clone the W1TTL Rig Control repository into the home directory of rig (or another directory of your choice).  Then, while logged into rig, you can run the application:
+  python rig.py
+  
+And now W1TTL rig control should be listening on port 5000.  This should be sufficient for a group of students.
+
+## Files
+
+rig.py: The main application file
+motd.txt: The message of the day -- a file with a single line.  This appears at the top of the web page and cannot be changed by students.
+message.txt: A message that can be edited within the webpage by anyone.  I usually put a QSO script in here like, "CQ CQ CQ this is W1HLO calling CQ."
+log.csv: The QSO log in csv format.
+export_log.py: This will export the QSO log in Cabrillo format with the information needed for submitting directly to SCR.  The exported file will be saved as log.txt.
+
+## Configuration
+
+Editing rig.py or export_log.py, you will see where you can change the relay GPIO pins (if needed) as well as any file names at the top of the program.
+
