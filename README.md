@@ -29,7 +29,7 @@ As root, install Flask with the following commands:
 
 Create a user called "rig" and clone the W1TTL Rig Control repository into the home directory of rig (or another directory of your choice).  Then, while logged into rig, you can run the application:
 
-python rig.py
+    python rig.py
   
 And now W1TTL rig control should be listening on port 5000.  This should be sufficient for a group of students.
 
