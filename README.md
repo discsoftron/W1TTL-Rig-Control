@@ -1,2 +1,4 @@
 # W1TTL-Rig-Control
-A web-based collaborative application for amateur radio QSOs.
+
+## Description
+W1TTL Rig Control is a web-based collaborative application for amateur radio QSOs.
