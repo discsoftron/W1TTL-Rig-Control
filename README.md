@@ -13,7 +13,7 @@ A Raspberry Pi running Raspbian with Python installed is needed.  This applicati
 
 A relay board like the [ELEGOO 4 Channel Relay Module](https://www.amazon.com/ELEGOO-Channel-Optocoupler-Arduino-Raspberry/dp/B01HEQF5HU/) works great.  This board has opto-isolators to isolate the Raspberry Pi's 3.3V signals from the relays and can be powered by the Raspberry Pi's 5VDC source.  Of course, you can roll your own if you want.  If you decide to use the ELEGOO (or clone) relay module, please be aware that a LOW signal triggers the relay while a HIGH signal puts the relay back in its "rest" state.
 
-**Note:** This program is currently in beta and I am currently developing the ability for this program to change the frequency on ICOM radios that have a USB connector.  Right now, this functionality doesn't work.  In the future I will also add remote CW keying capabilities.
+**Note:** This program is currently in beta and I am developing the ability for this program to change the frequency on ICOM radios that have a USB connector.  Right now, this functionality doesn't work.  In the future I will also add remote CW keying capabilities.
 
 You will have to look up the pinouts on your radio for the mic jack to see which pins are used for PTT, PTT Ground, Audio In, and Audio Ground.  On a Kenwood 8-pin jack, PTT is pin 2, PTT Ground is pin 8, Audio In is pin 1 and Audio Ground is pin 7.  On a Kenwood 4-pin jack, PTT is pin 3, Audio In is pin 2, and both PTT Ground and Audio Ground are pin 1.  This will vary, of course, from rig brand to brand.
 
