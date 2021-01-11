@@ -12,3 +12,5 @@ Running on a Raspberry Pi, this program uses Flask and Python on the back end wi
 A Raspberry Pi running Raspbian with Python installed is needed.  This application has been tested on a Raspberry Pi 4.
 
 A relay board like the [ELEGOO 4 Channel Relay Module](https://www.amazon.com/ELEGOO-Channel-Optocoupler-Arduino-Raspberry/dp/B01HEQF5HU/) works great.  This board has opto-isolators to isolate the Raspberry Pi's 3.3V signals from the relays and can be powered by the Raspberry Pi's 5VDC source.  Of course, you can roll your own if you want.  If you decide to use the ELEGOO (or clone) relay module, please be aware that a LOW signal triggers the relay while a HIGH signal puts the relay back in its "rest" state.
+
+*Note:* This program is currently in beta and I am currently developing the ability for this program to change the frequency on ICOM radios that have a USB connector.  Right now, this functionality doesn't work.
