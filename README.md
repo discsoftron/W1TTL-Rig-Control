@@ -1,4 +1,4 @@
-# W1TTL-Rig-Control
+# W1TTL Rig Control
 
 ## Description
 W1TTL Rig Control is a web-based collaborative application for remotely controlling amateur radios.  I created this application so I could remotely teach amateur radio QSOs to students using a conferencing program like Google Meet or Zoom.  I wanted to create a program that was clean and simple where any rig could be used (even a Kenwood TS-820S) and students could key the rig and collaboratively log the QSOs.  When the application is running, anyone can key the rig or mute the rig.  Students can help each other by sending the callsign they think they heard to everyone's web browser.  Also, one student can take on the task of logging the QSO with everyone seeing the updated log once it's been submitted.  Callsigns in the log are hyperlinked to the station's QRZ page.
