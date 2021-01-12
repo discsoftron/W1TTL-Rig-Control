@@ -29,7 +29,11 @@ It is assumed that you already have Python and PIP installed.  As root, install 
     sudo pip install flask
     sudo pip install flask-socketio
 
-Create a user called "rig" and clone the W1TTL Rig Control repository into the home directory of rig (or another directory of your choice).  Then, while logged into rig, you can run the application with:
+Create a user called "rig" and clone the W1TTL Rig Control repository into the home directory of rig (or another directory of your choice).  For example:
+
+    git clone https://github.com/discsoftron/W1TTL-Rig-Control.git
+    
+Then, while logged into rig, you can run the application with:
 
     python rig.py
   
