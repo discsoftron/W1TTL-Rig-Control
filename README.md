@@ -15,9 +15,9 @@ A relay board like the [ELEGOO 4 Channel Relay Module](https://www.amazon.com/EL
 
 **Note:** This program is currently in beta and I am developing the ability for this program to change the frequency on ICOM radios that have a USB connector.  Right now, this functionality doesn't work.  In the future I will also add remote CW keying capabilities.
 
-You will have to look up the pinouts on your radio for the mic jack to see which pins are used for PTT, PTT Ground, Audio In, and Audio Ground.  On a Kenwood 8-pin jack, PTT is pin 2, PTT Ground is pin 8, Audio In is pin 1 and Audio Ground is pin 7.  On a Kenwood 4-pin jack, PTT is pin 3, Audio In is pin 2, and both PTT Ground and Audio Ground are pin 1.  This will vary, of course, from rig brand to brand.
+You will have to look up the pinouts on your radio for the mic jack to see which pins are used for PTT, PTT Ground, Audio In, and Audio Ground.  On a Kenwood 8-pin jack, PTT is pin 2, PTT Ground is pin 8, Audio In is pin 1 and Audio Ground is pin 7.  On a Kenwood 4-pin jack, PTT is pin 3, Audio In is pin 2, and both PTT Ground and Audio Ground are pin 1.  This will vary, of course, from rig brand to brand.  
 
-You can wire the audio straight from your computer's audio out jack to your rig's mic in and from your rig's headphones out to your computer's audio in jack.  You just need to be careful of your audio levels on the computer and rig so you are not overdriving your audio circuits.  Eventually, I'll post a schematic for using isolation transformers and trimmer pots to adjust the audio levels.  For the mute control to work, your rig's audio output (e.g., the headphones jack) will connect to the mute relay first and then go on to the line in jack on your computer's sound card.  That way the "Mute" button in the rig control app can mute the rig's audio when pressed.  (Muting just connects the audio line to ground.)
+You can wire the audio straight from your computer's audio out jack to your rig's mic in and from your rig's headphones out to your computer's audio in jack.  You just need to be careful of your audio levels on the computer and rig so you are not overdriving your audio circuits.  Eventually, I'll post a schematic for using isolation transformers and trimmer pots to adjust the audio levels.  For the mute control to work, your rig's audio output (e.g., the headphones jack) will connect to the mute relay first and then go on to the line in jack on your computer's sound card.  That way the "Mute" button in the rig control app can mute the rig's audio when pressed.  (Muting just connects the audio line to ground.). Please be aware that you are making all these connections to your rig and computers at your own risk!
 
 The wiring diagram below shows how the Raspberry Pi is connected to the relay board:
 ![W1TTL Rig Control_bb](https://user-images.githubusercontent.com/12022870/104232978-18b27500-541f-11eb-8e22-2233f2646915.jpg)
@@ -55,3 +55,6 @@ And now W1TTL rig control should be listening on port 5000 and you can connect t
 
 Editing `rig.py` or `export_log.py`, you will see where you can change the relay GPIO pins (if needed) as well as any file names at the top of the program.
 
+## Credits
+
+Please e-mail the author, Anthony Girasoli, W1TTL, with any comments or suggestions at tron@girasoli.org.
