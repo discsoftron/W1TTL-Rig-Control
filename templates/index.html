@@ -163,7 +163,7 @@
 			// If a display frequency event was received, take care of it...
 			socket.on('display_freq', function(msg) {
 				$('.freq_field input').val(msg.freq);
-				alert(msg.freq);
+				//alert(msg.freq);
 			});
 			
 			$(document).on("click touchstart", "#set_freq", function(e) {
@@ -218,10 +218,10 @@
 			});
 			
 			$(document).on("click touchstart", "#submit_entry", function(e) {
-				// If the PTT button was pressed, send a transmit message to the server
+				// If the Submit Log button was pressed, send a submit_entry message to the server
 				e.preventDefault();
 				
-				freq = $("#freq").val();
+				freq = $("#freq_field").val();
 				mode = $("#mode").val();
 				call = $("#call").val();
 				rst_sent = $("#rst_sent").val();
