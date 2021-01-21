@@ -24,15 +24,15 @@ The wiring diagram below shows how the Raspberry Pi is connected to the relay bo
 
 ## Software
 
-It is assumed that you already have Python and PIP installed.  As root, install Flask and Flask-SocketIO with the following commands:
-
-    sudo pip install flask
-    sudo pip install flask-socketio
-
 Create a user called "rig" and clone the W1TTL Rig Control repository into the home directory of rig (or another directory of your choice).  For example:
 
     git clone https://github.com/discsoftron/W1TTL-Rig-Control.git
     
+It is assumed that you already have Python and PIP installed.  Install Flask with sudo and Flask-SocketIO as the rig account with the following commands:
+
+    sudo pip install flask
+    pip install flask-socketio
+
 Then, while logged into rig, you can run the application with:
 
     python rig.py
