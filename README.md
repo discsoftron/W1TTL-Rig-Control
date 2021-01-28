@@ -54,6 +54,7 @@ And now W1TTL rig control should be listening on port 5000 and you can connect t
 `log.csv`: The QSO log in csv format.
 
 `export_log.py`: This will export the QSO log in Cabrillo format with the information needed for submitting directly to SCR.  The exported file will be saved as `log.txt`.  To run this program, enter:
+    
     python export_log.py
 
 ## Configuration
