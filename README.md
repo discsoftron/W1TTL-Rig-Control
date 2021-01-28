@@ -28,10 +28,14 @@ Create a user called "rig" and clone the W1TTL Rig Control repository into the h
 
     git clone https://github.com/discsoftron/W1TTL-Rig-Control.git
     
-It is assumed that you already have Python and PIP installed.  Install Flask with sudo and Flask-SocketIO as the rig account with the following commands:
+It is assumed that you already have Python and PIP installed.  Install Flask with sudo and Flask-SocketIO as the rig account with the following command.  Don't forget -- if rig is not a sudoer, be sure to put the rig account in the sudo group in /etc/group:
 
     sudo pip install flask
     pip install flask-socketio
+
+If you are using Python 2.x, you may get an error instaling flask-socketio.  If you do, try the following command:
+
+    pip install "Flask-SocketIO<5.0.0"
 
 Then, while logged into rig, you can run the application with:
 
