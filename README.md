@@ -41,7 +41,7 @@ Then, while logged into rig, you can run the application with:
 
     python rig.py
   
-And now W1TTL rig control should be listening on port 5000 and you can connect to it on your browser with http://hostname:5000/
+And now W1TTL rig control should be listening on port 5000 and you can connect to it on your browser with http://hostname:5000/ (Where "hostname" is the IP Address or host name of your Raspberry Pi.)
 
 ## Files
 
