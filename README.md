@@ -20,6 +20,7 @@ You will have to look up the pinouts on your radio for the mic jack to see which
 You can wire the audio straight from your computer's audio out jack to your rig's mic in and from your rig's headphones out to your computer's audio in jack.  You just need to be careful of your audio levels on the computer and rig so you are not overdriving your audio circuits.  Eventually, I'll post a schematic for using isolation transformers and trimmer pots to adjust the audio levels.  For the mute control to work, your rig's audio output (e.g., the headphones jack) will connect to the mute relay first and then go on to the line in jack on your computer's sound card.  That way the "Mute" button in the rig control app can mute the rig's audio when pressed.  (Muting just connects the audio line to ground.). Please be aware that you are making all these connections to your rig and computers at your own risk!
 
 The wiring diagram below shows how the Raspberry Pi is connected to the relay board:
+
 ![W1TTL Rig Control_bb](https://user-images.githubusercontent.com/12022870/104746606-827f9700-571d-11eb-9e74-5acac8fcab20.jpg)
 
 ## Software
