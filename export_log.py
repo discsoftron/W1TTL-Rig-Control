@@ -138,21 +138,21 @@ numOfDX = len(confirmedDX)
 
 SCRpoints = ((2 * (cwCount + ryCount)) + (phCount)) * (numOfStates + numOfProvinces + numOfDX + (2 * clubs) + (5 * schools))
 
-print " "
-print "Wrote " + str(totalCount) + " QSOs to " + outputFile
-print " "
-print "CW QSOs: " + str(cwCount)
-print "Digital QSOs: " + str(ryCount)
-print "Phone QSOs: " + str(phCount)
-print " "
-print "Number of States: " + str(numOfStates)
-print "Number of Provinces: " + str(numOfProvinces)
-print "Number of DX: " + str(numOfDX)
-print " "
-print "Number of Individuals: " + str(individuals)
-print "Number of Clubs: " + str(clubs)
-print "Number of Schools: " + str(schools)
-print " "
-print "Total score: " + str(SCRpoints)
-print " "
+print (" ")
+print ("Wrote " + str(totalCount) + " QSOs to " + outputFile)
+print (" ")
+print ("CW QSOs: " + str(cwCount))
+print ("Digital QSOs: " + str(ryCount))
+print ("Phone QSOs: " + str(phCount))
+print (" ")
+print ("Number of States: " + str(numOfStates))
+print ("Number of Provinces: " + str(numOfProvinces))
+print ("Number of DX: " + str(numOfDX))
+print (" ")
+print ("Number of Individuals: " + str(individuals))
+print ("Number of Clubs: " + str(clubs))
+print ("Number of Schools: " + str(schools))
+print (" ")
+print ("Total score: " + str(SCRpoints))
+print (" ")
  

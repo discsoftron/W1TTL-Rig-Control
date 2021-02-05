@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from threading import Lock
 from flask import Flask, render_template, session, request, copy_current_request_context
 from flask_socketio import SocketIO, emit, disconnect
@@ -18,8 +18,8 @@ GPIO.setup(relay2, GPIO.OUT)
 # Set rigType to:
 #    "None" for no USB-enabled rig
 #    "ICOM" for IC-7300
-rigType = "None"
-#rigType = "ICOM"
+#rigType = "None"
+rigType = "ICOM"
 
 # Open the serial port
 rigOK = "False"
@@ -30,7 +30,7 @@ if (rigType != "None"):
         rigSerial = serial.Serial(rigUSB, rigBaudRate) 
         rigOK = "True"
     except:
-        print "Could not open serial port."
+        print ("Could not open serial port.")
 
 if (rigOK == "True"):
     if (rigType == "ICOM"):
@@ -106,7 +106,7 @@ def getFreq(message):
             if (rigType == "ICOM"):
                 # frequency = rigSerial.write("\xfe\xfe\x80\x00\x03\xfd")
                 frequency = rigSerial.write("\xfe\x70\xe0\x03\xfd")
-                print "Frequency is: " + str(frequency)
+                print ("Frequency is: " + str(frequency))
                 emit('display_freq', {'freq': frequency})
 
 @socketio.on('set_freq', namespace='/rig')
@@ -116,8 +116,8 @@ def setFreq(message):
             frequency = message['frequency']
             hex = itobcd(frequency)
             serialData = rigSerial.write("\xfe\xfe\x80\x00\x00"+hex.decode('string_escape')+"\xfd")
-            print "Frequency set to " + str(frequency)
-            print "Message echoed is " + str(serialData)
+            print ("Frequency set to " + str(frequency))
+            print ("Message echoed is " + str(serialData))
             
             emit('push_set_freq', {'freq': frequency})
 
@@ -125,14 +125,14 @@ def setFreq(message):
 def ptt(message):
     if (message['data'] == "transmit"):
         # The PTT key was clicked
-        print "The PTT key was clicked..."
+        print ("The PTT key was clicked...")
         GPIO.output(relay1, GPIO.LOW)
         emit('ptt_control_response',
              {'data': "transmit"},
              broadcast=True)
     elif (message['data'] == "receive"):
         # The PTT was unclicked
-        print "The PTT key was unclicked..."
+        print ("The PTT key was unclicked...")
         GPIO.output(relay1, GPIO.HIGH)
         emit('ptt_control_response',
              {'data': "receive"},
@@ -140,18 +140,18 @@ def ptt(message):
         
 @socketio.on('mute_control', namespace='/rig')
 def mute(message):
-    print "Mute control: " + str(message['data'])
+    print ("Mute control: " + str(message['data']))
     if (message['data'] == "mute"):
-        print "Mute relay is set to: " + str(GPIO.input(relay2))
+        print ("Mute relay is set to: " + str(GPIO.input(relay2)))
         # The mute button was clicked
         if (GPIO.input(relay2) == 1):
             # Turn the mute on if it was previously off
-            print "Muting..."
+            print ("Muting...")
             GPIO.output(relay2, GPIO.LOW)
             emit('mute_control_response', {'data': "mute_on"}, broadcast=True)
         elif (GPIO.input(relay2) == 0):
             # Turn off the mute relay if it was previously on
-            print "Unmuting..."
+            print ("Unmuting...")
             GPIO.output(relay2, GPIO.HIGH)
             emit('mute_control_response', {'data': "mute_off"}, broadcast=True)
         
@@ -271,7 +271,7 @@ def getConfig(message):
         motd = f.readline().strip()
     f.close()
     
-    print "MOTD: " + motd
+    print ("MOTD: " + motd)
     
     # Read the message box file.  If the file doesn't exist, create it.
     messageBox = ""
