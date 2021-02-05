@@ -29,18 +29,20 @@ Create a user called "rig" and clone the W1TTL Rig Control repository into the h
 
     git clone https://github.com/discsoftron/W1TTL-Rig-Control.git
     
-It is assumed that you already have Python and PIP installed.  Install Flask with sudo and Flask-SocketIO as the rig account with the following command.  Don't forget -- if rig is not a sudoer, be sure to put the rig account in the sudo group in /etc/group:
+It is assumed that you already have Python3 and pip3 installed.  Install Flask with sudo and Flask-SocketIO as the rig account with the following command.  Don't forget -- if rig is not a sudoer, be sure to put the rig account in the sudo group in /etc/group.
 
-    sudo pip install Flask
-    pip install Flask-SocketIO
+    sudo pip3 install Flask Flask-SocketIO
 
-If you are using Python 2.x, you may get an error instaling flask-socketio.  If you do, try the following command:
+Lastly, you will need to add rig to the gpio group in /etc/group otherwise you will get a "RuntimeError: Not running on a RPi!" message when running rig.py.  Edit /etc/group, find the line that has "gpio:x:997:pi" and add a comma and the rig user to the end of the line so the whole like looks like this:
 
-    pip install "Flask-SocketIO<5.0.0"
+    gpio:x:997:pi,rig
+    
+Save and exit your editor and log out of rig and log back in so that the new group settings will take effect.
 
-Then, while logged into rig, you can run the application with:
+Then, while logged in as the rig user, change to the W1TTL-Rig-Control directory and run the application:
 
-    python rig.py
+    cd W1TTL-Rig-Control
+    python3 rig.py
   
 And now W1TTL rig control should be listening on port 5000 and you can connect to it on your browser with http://hostname:5000/ (Where "hostname" is the IP Address or host name of your Raspberry Pi.)
 
@@ -56,7 +58,7 @@ And now W1TTL rig control should be listening on port 5000 and you can connect t
 
 `export_log.py`: This will export the QSO log in Cabrillo format with the information needed for submitting directly to SCR.  The exported file will be saved as `log.txt`.  To run this program, enter:
     
-    python export_log.py
+    python3 export_log.py
 
 ## Configuration
 
