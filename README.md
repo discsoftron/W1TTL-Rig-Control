@@ -20,24 +20,29 @@ You will have to look up the pinouts on your radio for the mic jack to see which
 You can wire the audio straight from your computer's audio out jack to your rig's mic in and from your rig's headphones out to your computer's audio in jack.  You just need to be careful of your audio levels on the computer and rig so you are not overdriving your audio circuits.  Eventually, I'll post a schematic for using isolation transformers and trimmer pots to adjust the audio levels.  For the mute control to work, your rig's audio output (e.g., the headphones jack) will connect to the mute relay first and then go on to the line in jack on your computer's sound card.  That way the "Mute" button in the rig control app can mute the rig's audio when pressed.  (Muting just connects the audio line to ground.). Please be aware that you are making all these connections to your rig and computers at your own risk!
 
 The wiring diagram below shows how the Raspberry Pi is connected to the relay board:
-![W1TTL Rig Control_bb](https://user-images.githubusercontent.com/12022870/104232978-18b27500-541f-11eb-8e22-2233f2646915.jpg)
+
+![W1TTL Rig Control_bb](https://user-images.githubusercontent.com/12022870/104746606-827f9700-571d-11eb-9e74-5acac8fcab20.jpg)
 
 ## Software
-
-It is assumed that you already have Python and PIP installed.  As root, install Flask and Flask-SocketIO with the following commands:
-
-    sudo pip install flask
-    sudo pip install flask-socketio
 
 Create a user called "rig" and clone the W1TTL Rig Control repository into the home directory of rig (or another directory of your choice).  For example:
 
     git clone https://github.com/discsoftron/W1TTL-Rig-Control.git
     
+It is assumed that you already have Python and PIP installed.  Install Flask with sudo and Flask-SocketIO as the rig account with the following command.  Don't forget -- if rig is not a sudoer, be sure to put the rig account in the sudo group in /etc/group:
+
+    sudo pip install Flask
+    pip install Flask-SocketIO
+
+If you are using Python 2.x, you may get an error instaling flask-socketio.  If you do, try the following command:
+
+    pip install "Flask-SocketIO<5.0.0"
+
 Then, while logged into rig, you can run the application with:
 
     python rig.py
   
-And now W1TTL rig control should be listening on port 5000 and you can connect to it on your browser with http://hostname:5000/
+And now W1TTL rig control should be listening on port 5000 and you can connect to it on your browser with http://hostname:5000/ (Where "hostname" is the IP Address or host name of your Raspberry Pi.)
 
 ## Files
 
@@ -49,7 +54,9 @@ And now W1TTL rig control should be listening on port 5000 and you can connect t
 
 `log.csv`: The QSO log in csv format.
 
-`export_log.py`: This will export the QSO log in Cabrillo format with the information needed for submitting directly to SCR.  The exported file will be saved as `log.txt`.
+`export_log.py`: This will export the QSO log in Cabrillo format with the information needed for submitting directly to SCR.  The exported file will be saved as `log.txt`.  To run this program, enter:
+    
+    python export_log.py
 
 ## Configuration
 
