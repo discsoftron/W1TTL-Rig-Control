@@ -33,7 +33,7 @@ It is assumed that you already have Python3 and pip3 installed.  Install Flask w
 
     sudo pip3 install Flask Flask-SocketIO
 
-Lastly, you will need to add rig to the gpio group in /etc/group otherwise you will get a "RuntimeError: Not running on a RPi!" message when running rig.py.  Edit /etc/group, find the line that has 'gpio:x:997:pi and add a comma and the rig user to the end of the line so the whole like looks like this:
+Lastly, you will need to add rig to the gpio group in /etc/group otherwise you will get a "RuntimeError: Not running on a RPi!" message when running rig.py.  Edit /etc/group, find the line that has `gpio:x:997:pi and add a comma and the rig user to the end of the line so the whole like looks like this:
 
     gpio:x:997:pi,rig
     
