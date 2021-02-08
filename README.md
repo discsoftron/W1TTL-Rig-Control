@@ -37,7 +37,7 @@ Lastly, you will need to add the rig user to the gpio group in /etc/group otherw
 
     gpio:x:997:pi,rig
     
-Save and exit your editor and log out of rig and log back in so that the new group settings will take effect.
+Save and exit your editor and log out of rig and log back in so that the new group settings will take effect.  Note: If you are testing control of the rig via USB, you will also need to add the rig user to the <code>dialout</code> group for access to the USB port.
 
 Then, while logged in as the rig user, change to the W1TTL-Rig-Control directory and run the application:
 
