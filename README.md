@@ -59,6 +59,8 @@ And now W1TTL rig control should be listening on port 5000 and you can connect t
 `export_log.py`: This will export the QSO log in Cabrillo format with the information needed for submitting directly to SCR.  The exported file will be saved as `log.txt`.  To run this program, enter:
     
     python3 export_log.py
+    
+`relay_test.py`: A test program to cycle the relays on and off for troubleshooting purposes.  Edit the program to change the GPIO pin numbers for the relays.
 
 ## Configuration
 
