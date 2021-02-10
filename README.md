@@ -1,7 +1,7 @@
 # W1TTL Rig Control
 
 ## Description
-W1TTL Rig Control is a web-based collaborative application for remotely controlling amateur radios.  I created this application so I could remotely teach amateur radio QSOs to students using a conferencing program like Google Meet or Zoom.  I wanted to create a program that was clean and simple where any rig could be used (even a Kenwood TS-820S) and students could key the rig and collaboratively log the QSOs.  When the application is running, anyone can key the rig or mute the rig.  Students can help each other by sending the callsign they think they heard to everyone's web browser.  Also, one student can take on the task of logging the QSO with everyone seeing the updated log once it's been submitted.  Callsigns in the log are hyperlinked to the station's QRZ page.
+W1TTL Rig Control is a web-based collaborative application for remotely controlling amateur radios.  I created this application so I could remotely teach amateur radio QSOs to students using a conferencing program like Google Meet or Zoom.  I wanted to create a program that was clean and simple where any rig could be used (even a Kenwood TS-520SE) and students could key the rig and collaboratively log the QSOs.  When the application is running, anyone can key the rig or mute the rig.  Students can help each other by sending the callsign they think they heard to everyone's web browser.  Also, one student can take on the task of logging the QSO with everyone seeing the updated log once it's been submitted.  Callsigns in the log are hyperlinked to the station's QRZ page.
 
 This application is meant for use with [School Club Roundup](http://www.arrl.org/school-club-roundup) (SCR), so the logging is formatted towards the SCR contest.  There is a Python program included here called export_log.py that will create a log file in Cabrillo format to submit to SCR.  The application's log file is in comma-separated values (csv) format, so it can be edited on the back end for corrections, if needed.
 
@@ -33,11 +33,11 @@ It is assumed that you already have Python3 and pip3 installed.  Install Flask w
 
     sudo pip3 install Flask Flask-SocketIO
 
-Lastly, you will need to add rig to the gpio group in /etc/group otherwise you will get a "RuntimeError: Not running on a RPi!" message when running rig.py.  Edit /etc/group, find the line that has "gpio:x:997:pi" and add a comma and the rig user to the end of the line so the whole like looks like this:
+Lastly, you will need to add the rig user to the gpio group in /etc/group otherwise you will get a "RuntimeError: Not running on a RPi!" message when running rig.py.  Edit /etc/group, find the line that has <code>gpio:x:997:pi</code> and add a comma and the rig user to the end of the line so the whole like looks like this:
 
     gpio:x:997:pi,rig
     
-Save and exit your editor and log out of rig and log back in so that the new group settings will take effect.
+Save and exit your editor and log out of rig and log back in so that the new group settings will take effect.  Note: If you are testing control of the rig via USB, you will also need to add the rig user to the <code>dialout</code> group for access to the USB port.
 
 Then, while logged in as the rig user, change to the W1TTL-Rig-Control directory and run the application:
 
