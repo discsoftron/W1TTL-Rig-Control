@@ -34,6 +34,8 @@ It is assumed that you already have Python3 and pip3 installed.  Install Flask w
     sudo pip3 install Flask
     sudo pip3 install Flask-SocketIO==4.3.2
 
+You have to use version 4.3.2 of Flask-SocketIO otherwise you will get a "The client is using an unsupported version of the Socket.IO or Engine.IO protocols (further occurrences of this error will be logged with level INFO)" error in your console when running rig.py.
+
 Lastly, you will need to add the rig user to the gpio group in /etc/group otherwise you will get a "RuntimeError: Not running on a RPi!" message when running rig.py.  Edit /etc/group, find the line that has <code>gpio:x:997:pi</code> and add a comma and the rig user to the end of the line so the whole like looks like this:
 
     gpio:x:997:pi,rig
