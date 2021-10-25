@@ -78,9 +78,6 @@ for logLine in logLines:
     rcv_class = logLine[10]
     rcv_qth = logLine[11]
     
-    # Remove the decimal from the frequency
-    freq = re.sub('[.]', '', freq)
-    
     # Remove the dashes from date
     date = re.sub('[-]', '', date)
     
