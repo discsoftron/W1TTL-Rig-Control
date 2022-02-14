@@ -1,0 +1,42 @@
+{% block body %}
+
+<div class="container">
+	{% if session.page == "home" %}
+	<ul class="nav nav-tabs">
+		<li class="nav-item">
+			<a class="nav-link active" href="{{ url_for('index') }}">Home</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="{{ url_for('logs') }}">Logs</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
+		</li>
+	</ul>
+	{% elif session.page == "logs" %}
+	<ul class="nav nav-tabs">
+		<li class="nav-item">
+			<a class="nav-link" href="{{ url_for('index') }}">Home</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link active" href="{{ url_for('logs') }}">Logs</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link active" href="{{ url_for('settings') }}">Settings</a>
+		</li>
+	</ul>
+	{% elif session.page == "settings" %}
+	<ul class="nav nav-tabs">
+		<li class="nav-item">
+			<a class="nav-link" href="{{ url_for('index') }}">Home</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="{{ url_for('logs') }}">Logs</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link active" href="{{ url_for('settings') }}">Settings</a>
+		</li>
+	</ul>
+	{% endif %}
+</div>
+{% endblock %}

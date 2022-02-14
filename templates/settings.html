@@ -1,0 +1,151 @@
+{% extends "layout.html" %}
+
+{% block body %}
+{% include "toolbar.html" %}
+
+<html lang="en">
+
+<script>
+$(document).ready(function() {
+	namespace = '/rig';
+	var socket = io(namespace);
+ 
+	socket.on('connect', function() {
+		// Load any configuration data
+		socket.emit('get_station_info', {data: 'True'});
+	});
+	
+
+
+	socket.on('station_info', function(msg) {
+		
+		$('#callsign').val(msg.callSign);
+		$('#name').val(msg.name);
+		$('#club_name').val(msg.club);
+		$('#address1').val(msg.address1);
+		$('#address2').val(msg.address2);
+		$('#city').val(msg.city);
+		$('#state_province').val(msg.stateProvince);
+		$('#postalcode').val(msg.postalCode);
+		$('#country').val(msg.country);
+		$('#arrl_section').val(msg.arrlSection);
+		$('#grid_locator').val(msg.gridLocator);
+		$('#soapbox').val(msg.soapbox);
+		$('#motd').val(msg.motd);
+	});
+	
+	socket.on('update_station_info_success', function(msg) {
+		alert(msg.status)
+	});
+	
+	$(document).on("click touchstart", "#update_info", function(e) {
+		// If the Update info button was pressed, send a update_info message to the server
+		e.preventDefault();
+		
+		callSign = $("#callsign").val();
+		name = $("#name").val();
+		club = $("#club_name").val();
+		address1 = $("#address1").val();
+		address2 = $("#address2").val();
+		city = $("#city").val();
+		stateProvince = $("#state_province").val();
+		postalCode = $("#postalcode").val();
+		country = $("#country").val();
+		arrlSection = $("#arrl_section").val();
+		gridLocator = $("#grid_locator").val();
+		soapbox = $("#soapbox").val();
+		motd = $("#motd").val();
+		
+		socket.emit('update_station_info', {callSign: callSign, name: name, club: club, address1: address1, address2: address2, city: city, stateProvince: stateProvince, postalCode: postalCode, country: country, arrlSection: arrlSection, gridLocator: gridLocator, soapbox: soapbox, motd: motd});
+		
+	    return false;
+		
+	});
+
+
+});
+
+</script>
+
+<body>
+	<div class="container">
+	    <div class="pb-2 mt-4 mb-2">
+	    	<h2>Station Information</h2>
+	    	<form class="row g-3" id="settingsForm">
+	    		<div class="col-md-2">
+					<label for="callsign" class="form-label">Call Sign</label>
+					<input type="text" id="callsign" class="form-control">
+				</div>
+				<div class="col-md-4">
+					<label for="name" class="form-label">Name</label>
+					<input type="text" id="name" class="form-control">
+				</div>
+				<div class="col-md-6">
+					<label for="club_name" class="form-label">Club Name</label>
+					<input type="text" id="club_name" class="form-control">
+				</div>
+				<div class="col-md-4">
+					<label for="address1" class="form-label">Address 1</label>
+					<input type="text" id="address1" class="form-control">
+				</div>
+				<div class="col-md-4">
+					<label for="address2" class="form-label">Address 2</label>
+					<input type="text" id="address2" class="form-control">
+				</div>
+				<div class="col-md-2">
+					<label for="city" class="form-label">City</label>
+					<input type="text" id="city" class="form-control">
+				</div>
+				<div class="col-md-2">
+					<label for="state_province" class="form-label">State / Province</label>
+					<input type="text" id="state_province" class="form-control">
+				</div>
+				<div class="col-md-2">
+					<label for="postalcode" class="form-label">Postal Code</label>
+					<input type="text" id="postalcode" class="form-control">
+				</div>
+				<div class="col-md-2">
+					<label for="country" class="form-label">Country</label>
+					<input type="text" id="country" class="form-control">
+				</div>
+				<div class="col-md-2">
+					<label for="arrl_section" class="form-label">ARRL Section</label>
+					<input type="text" id="arrl_section" class="form-control">
+				</div>
+				<div class="col-md-2">
+					<label for="grid_locator" class="form-label">Grid Locator</label>
+					<input type="text" id="grid_locator" class="form-control">
+				</div>
+				<div class="col-md-4">
+					<label for="soapbox" class="form-label">Soapbox</label>
+					<input type="text" id="soapbox" class="form-control">
+				</div>
+				<div class="col-md-6">
+					<label for="motd" class="form-label">Message of the Day</label>
+					<input type="text" id="motd" class="form-control">
+				</div>
+				<div class="col-12">
+					<button type="button" class="btn btn-primary" id="update_info">Update</button>
+					<div id="station_update_messsage"></div>
+				</div>
+			</form>
+		</div>
+		
+		<div class="pb-2 mt-4 mb-2">
+			<h2>Rig Hardware</h2>
+			<form class="row g-3" id="settingsForm">
+	    		<div class="col-md-2">
+					<label for="hardware_type" class="form-label">Hardware Type</label>
+					<select id="hardware_type" class="form-select">
+						<option value="BA">Boat Anchor</option>
+						<option value="ICOM">ICOM</option>
+					</select>
+				</div>
+				<div class="col-12">
+					<button type="button" class="btn btn-primary" id="update_rig">Update</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+{% endblock %}		
