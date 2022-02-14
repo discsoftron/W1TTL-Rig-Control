@@ -6,6 +6,7 @@ import RPi.GPIO as GPIO
 from flask import request
 import datetime, csv, os.path
 import serial
+import configparser
 
 # Set up GPIO pins on Raspberry Pi
 relay1 = 16 # Pin 16 / GPIO 23
@@ -14,12 +15,18 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(relay1, GPIO.OUT)
 GPIO.setup(relay2, GPIO.OUT)
 
+# Set file names.
+configFileName = "rigControl.ini"
+logCatalogFile = "logCatalog.csv"
+tempFileName = "tempFile.txt"
 
-# Set rigType to:
-#    "None" for no USB-enabled rig
-#    "ICOM" for IC-7300
-#rigType = "None"
-rigType = "ICOM"
+config = configparser.ConfigParser()
+config.read(configFileName)
+motd = config['Messages']['motd']
+logFileID = config['Log']['LastLogID']
+rigType = config['rig']['rigType']
+rigUSB = config['rig']['rigUSB']
+rigBaudRate = config['rig']['rigBaudRate']
 
 # Open the serial port
 rigOK = "False"
@@ -37,24 +44,31 @@ if (rigOK == "True"):
         rigSerial.setDTR(False) # Prevent the rig from transmitting if DTR is used for transmit
         rigSerial.setRTS(False) # Prevent the rig from transmitting if RTS is used for transmit
 
-# Set file names.
-motdFile = "motd.txt"
-messageFile = "message.txt"
-configFileName = "rigControl.cfg"
-logFile = "log.csv"
-tempFileName = "tempFile.txt"
-
-# Check if the log file exists.  If it doesn't, create it...
+logFile = logFileID + ".csv"
 if not os.path.isfile(logFile):
-    open(logFile, 'a').close()
-    
-# Check if the motd file exists.  If not, create it...
-if not os.path.isfile(motdFile):
-    open(motdFile, 'a').close()
-    
-# Check if the message box file exists.  If not, create it...
-if not os.path.isfile(messageFile):
-    open(messageFile, 'a').close()
+    # Check if the log catalog exists.  If not, create it...
+    if not os.path.isfile(logCatalogFile):
+        open(logCatalogFile, 'a').close()
+    # Check if the log is in the catalog...
+    logFound = False
+    with open(logCatalogFile, 'r') as fd:
+        reader = csv.reader(fd, delimiter=',')
+        for row in reader:
+            logNameID = row[0]
+            logName = row[1]
+            if (logNameID == logFileID):
+                logFound = True
+    fd.close()
+    # If the log file was found in the catalog, create it...
+    if (logFound == True):
+        open(logFile, 'a').close()
+    else:
+        # If the log file was not in the catalog, add it to the catalog and create the log...
+        with open(logCatalogFile, 'a') as fd:
+            writer = csv.writer(fd)
+            writer.writerow(logFileID,"General")
+        fd.close()
+        open(logFile, 'a').close()
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -89,7 +103,21 @@ def shutdown_server():
 
 @app.route('/')
 def index():
+    session['page'] = "home"
+    if session.get('logFileID') is None:
+        session['logFileID'] = logFileID
     return render_template('index.html', async_mode=socketio.async_mode)
+
+@app.route('/logs')
+def logs():
+    session['page'] = "logs"
+    return render_template('logs.html', async_mode=socketio.async_mode)
+
+@app.route('/settings')
+def settings():
+    session['page'] = "settings"
+    
+    return render_template('settings.html', async_mode=socketio.async_mode)
 
 @app.route('/shutdown')
 def shutdown():
@@ -98,6 +126,69 @@ def shutdown():
     GPIO.output(relay2, GPIO.HIGH)
     shutdown_server()
     return "server shutdown"
+
+@socketio.on('get_station_info', namespace='/rig')
+def getStationInfo(message):
+    config = configparser.ConfigParser()
+    config.read(configFileName)
+    
+    callSign = config['Station']['callSign']
+    name = config['Station']['name']
+    club = config['Station']['club']
+    address1 = config['Station']['address1']
+    address2 = config['Station']['address2']
+    city = config['Station']['city']
+    stateProvince = config['Station']['stateProvince']
+    postalCode = config['Station']['postalCode']
+    country = config['Station']['country']
+    arrlSection = config['Station']['arrlSection']
+    gridLocator = config['Station']['gridLocator']
+    soapbox = config['Station']['soapbox']
+    motd = config['Messages']['motd']
+    
+    stationInfo = {'callSign': callSign, 'name': name, 'club': club, 'address1': address1, 'address2': address2, 'city': city, 'stateProvince': stateProvince, 'postalCode': postalCode, 'country': country, 'arrlSection': arrlSection, 'gridLocator': gridLocator, 'soapbox': soapbox, 'motd':motd}
+    
+    emit('station_info', stationInfo)
+    
+@socketio.on('update_station_info', namespace='/rig')
+def updateStationInfo(message):
+    callSign = message['callSign']
+    name = message['name']
+    club = message['club']
+    address1 = message['address1']
+    address2 = message['address2']
+    city = message['city']
+    stateProvince = message['stateProvince']
+    postalCode = message['postalCode']
+    country = message['country']
+    arrlSection = message['arrlSection']
+    gridLocator = message['gridLocator']
+    soapbox = message['soapbox']
+    motd = message['motd']
+    
+    # Write data to the config file
+    config = configparser.ConfigParser()
+    config.read(configFileName)
+    config['Station']['callSign'] = callSign
+    config['Station']['name'] = name
+    config['Station']['club'] = club
+    config['Station']['address1'] = address1
+    config['Station']['address2'] = address2
+    config['Station']['city'] = city
+    config['Station']['stateProvince'] = stateProvince
+    config['Station']['postalCode'] = postalCode
+    config['Station']['country'] = country
+    config['Station']['arrlSection'] = arrlSection
+    config['Station']['gridLocator'] = gridLocator
+    config['Station']['soapbox'] = soapbox
+    config['Messages']['motd'] = motd
+    
+    with open(configFileName, 'w') as configFile:
+        config.write(configFile)
+    configFile.close()
+    
+    message = {'status': 'Success!'}
+    emit('update_station_info_success', message)
 
 @socketio.on('get_freq', namespace='/rig')
 def getFreq(message):
@@ -157,16 +248,20 @@ def mute(message):
         
 @socketio.on('push_call', namespace='/rig')
 def pushCall(message):
+    print ("Push call...")
     # send the call sign to the form
     emit('push_call_form', {'callSignPush': message['callSign']}, broadcast=True)
     
 @socketio.on('submit_msg', namespace='/rig')
 def pushMessageBox(message):
     # Write the message to the message box file
-    f = open(messageFile, "w")
-    f.write(message['messageBox'] + "\n")
-    f.close()
-
+    config = configparser.ConfigParser()
+    config.read(configFileName)
+    config['Messages']['broadcast'] = message['messageBox']
+    with open(configFileName, 'w') as configFile:
+        config.write(configFile)
+    configFile.close()
+    
     # send the message to the form
     emit('push_msg_box', {'messageBox': message['messageBox']}, broadcast=True)
 
@@ -199,6 +294,7 @@ def entry(message):
     localQth = "CT"
     
     # Append log entry to text file
+    logFile = session['logFileID'] + ".csv"
     logRow = [freq, mode, date, hourMin, localCall, rst_sent, localClass, localQth, call, rst_rcvd, station_class, qth, name, op]
     
     with open(logFile, 'a') as fd:
@@ -216,7 +312,7 @@ def entry(message):
     fd.close()
     
     # Reformat the log table in html with the most recent entry at the top
-    logTable = "<table class=\"table\"><tr><th>Frequency</th><th>Mode</th><th>Date</th><th>Time</th><th>Call</th><th>RST Sent</th><th>RST Received</th><th>Class</th><th>QTH</th><th>Received Name</th><th>Operator</th></tr>\n"
+    logTable = "<table class=\"table table-sm table-striped\"><tr><th>Frequency</th><th>Mode</th><th>Date</th><th>Time</th><th>Call</th><th>RST Sent</th><th>RST Rcv</th><th>Class</th><th>QTH</th><th>Rcv Name</th><th>Operator</th></tr>\n"
     logCount = 0
     rowCount = 1
     for row in reversed(logLines):
@@ -237,6 +333,7 @@ def entry(message):
 def getLog(message):
     # Get the log file and return it to the user
     logLines = []
+    logFile = session['logFileID'] + ".csv"
     with open(logFile, 'r') as fd:
         reader = csv.reader(fd, delimiter=',')
         for row in reader:
@@ -246,7 +343,7 @@ def getLog(message):
     # Reformat the log table in html with the most recent entry at the top
     logCount = 0
     rowCount = 1
-    logTable = "<table class=\"table\"><tr id=\"logTableHead\"><th>Frequency</th><th>Mode</th><th>Date</th><th>Time</th><th>Call</th><th>RST Sent</th><th>RST Received</th><th>Class</th><th>QTH</th><th>Name Received</th><th>Operator</th></tr>\n"
+    logTable = "<table class=\"table tabe-sm table-striped\"><tr id=\"logTableHead\"><th>Frequency</th><th>Mode</th><th>Date</th><th>Time</th><th>Call</th><th>RST Sent</th><th>RST Rcv</th><th>Class</th><th>QTH</th><th>Name Rcv</th><th>Operator</th></tr>\n"
     for row in reversed(logLines):
         newTime = row[3][:2] + ":" + row[3][2:]
         # Fix for old db format that didn't have name and op
@@ -260,24 +357,30 @@ def getLog(message):
     logTable = logTable + "</table>\n"
     
     emit('load_log', {'logTable': logTable, 'logCount': logCount})
+
+@socketio.on('get_log_catalog', namespace='/rig')
+def getLogCatalog(message):
+    # Get the log catalog and send it back to the browser
+    logNameLines = []
+    with open(logCatalogFile, 'r') as fd:
+        reader = csv.reader(fd, delimiter=',')
+        for row in reader:
+            logNameID = row[0]
+            logName = row[1]
+            logNameLines.append(logNameID + "," + logName)
+    fd.close()
+    
+    emit('update_log_catalog', {'logCatalog': logNameLines})
     
 @socketio.on('get_config', namespace='/rig')
 def getConfig(message):
     # Get any configuration data
     
-    # Read the message of the day.  If the file doesn't exist, create it.
-    motd = ""
-    with open (motdFile) as f:
-        motd = f.readline().strip()
-    f.close()
-    
-    print ("MOTD: " + motd)
-    
-    # Read the message box file.  If the file doesn't exist, create it.
-    messageBox = ""
-    with open (messageFile) as f:
-        messageBox = f.readline().strip()
-    f.close()
+    config = configparser.ConfigParser()
+    config.read(configFileName)
+    messageBox = config['Messages']['broadcast']
+    motd = config['Messages']['motd']
+    rigType = config['rig']['rigType']
         
     # Return the rig usb type and motd
     emit('load_config', {'rigType': rigType, 'motd': motd, 'messageBox': messageBox})

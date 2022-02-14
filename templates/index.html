@@ -1,451 +1,373 @@
-<!DOCTYPE HTML>
+{% extends "layout.html" %}
+
+{% block body %}
+{% include "toolbar.html" %}
+
 <html lang="en">
-<head>
-	<!-- Required meta tags -->
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-	<!-- CSS -->
     
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-	<link rel="stylesheet" href="{{url_for('.static', filename='buttons.css')}}">
+<script>
+$(document).ready(function() {
 
-	<script src="//code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
-    <script src="//code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-    
-    <script>
-        $(document).ready(function() {
+	namespace = '/rig';
+         
+    // Get the border color of the callsign input box (has to be a certain part of the border in order for this to work)
+    var callSignBorderColor = $(".callField").css("border-left-color");
 
-            namespace = '/rig';
-            
-            // Get the border color of the callsign input box (has to be a certain part of the border in order for this to work)
-            var callSignBorderColor = $(".callField").css("border-left-color");
+   	// Connect to the Socket.IO server.
+    // The connection URL has the following format, relative to the current page:
+    //     http[s]://<domain>:<port>[/<namespace>]
+   var socket = io(namespace);
 
-            // Connect to the Socket.IO server.
-            // The connection URL has the following format, relative to the current page:
-            //     http[s]://<domain>:<port>[/<namespace>]
-            var socket = io(namespace);
+   // Event handler for new connections.
+   // The callback function is invoked when a connection with the
+   // server is established.
+   socket.on('connect', function() {
+		// Set the PTT button to be in receive mode
+		$("#ptt_button").removeClass("xmit");
+		$("#ptt_button").addClass("rcv");
 
-            // Event handler for new connections.
-            // The callback function is invoked when a connection with the
-            // server is established.
-            socket.on('connect', function() {
-                // Set the PTT button to be in receive mode
-				$("#ptt_button").removeClass("xmit");
-				$("#ptt_button").addClass("rcv");
-				
-				// Get any configuration data
-				socket.emit('get_config', {data: 'True'});
-				
-				// Load the log
-				socket.emit('get_log', {data: 'True'});
-				
-            });
-            
-            // If a configuration load event was received, take care of it...
-            socket.on('load_config', function(msg) {
-            	// Hide the frequency buttons if needed
-            	if (msg.rigType == "None") {
-            		$("#set_freq").hide();
-            	}
-            	else {
-            		// Get the frequency
-    				socket.emit('get_freq', {data: 'True'});
-            	}
-            	
-            	// Set the message of the day (motd)
-            	$('#motd').text(msg.motd);
-            	
-            	// Set the message box
-            	$('textarea#messageBox').val(msg.messageBox);
+		// Get any configuration data
+		socket.emit('get_config', {data: 'True'});
 
-            });
-			
-			// If a ptt event was received, take care of it...
-			socket.on('ptt_control_response', function(msg) {
-				if (msg.data == "transmit") {
-					// If the server sent a transmit message, change the button color to red
-					$("#ptt_button").removeClass("rcv");
-					$("#ptt_button").addClass("xmit");
-					$("#rig_status").text("Transmitting")
-				}
-				else if (msg.data == "receive") {
-					// If the server sent a receive message, change the button color to green
-					$("#ptt_button").removeClass("xmit");
-					$("#ptt_button").addClass("rcv");
-					$("#rig_status").text("")
-				}
+		// Get the log catalog
+		socket.emit('get_log_catalog', {data: 'True'});
 
-            });
-			
-			// If a mute control response event was received, take care of it...
-			socket.on('mute_control_response', function(msg) {
-				if (msg.data == "mute_on") {
-					// If the server sent a transmit message, change the button color to red
-					//$("#mute_status").text("Muted")
-					$("#mute_button").text("Un-Mute");
-				}
-				else if (msg.data == "mute_off") {
-					// If the server sent a receive message, change the button color to green
-					//$("#mute_status").text("")
-					$("#mute_button").text("Mute");
-				}
+		// Load the log
+		socket.emit('get_log', {data: 'True'});
 
-            });
+	});
+         
+	// If a configuration load event was received, take care of it...
+	socket.on('load_config', function(msg) {
+		// Hide the frequency buttons if needed
+		if (msg.rigType == "None") {
+			$("#set_freq").hide();
+		}
+		else {
+			// Get the frequency
+			socket.emit('get_freq', {data: 'True'});
+		}
+	         	
+		// Set the message of the day (motd)
+		$('#motd').text(msg.motd);
+	         	
+		// Set the message box
+		$('textarea#messageBox').val(msg.messageBox);
 
-			// If an update log event was received, take care of it...
-			socket.on('update_log', function(msg) {
-				$('#log').html(msg.logTable);
-				
-				// Animate the first row of the log so that it flashes yellow
-				$('#logRow-1').each(function() {
-					$(this)
-						.animate({backgroundColor:'yellow'}, 400, 'linear')
-						.delay(400)
-						.animate({backgroundColor:'white'}, 2800, 'easeOutCirc');
-				})	
-				logHeader = "Log (" + msg.logCount + " entries)"
-				$('#logCount').text(logHeader);
-			});
-			
-			// If a full log load event was received, take care of it...
-			socket.on('load_log', function(msg) {
-				$('#log').html(msg.logTable);
-				logHeader = "Log (" + msg.logCount + " entries)"
-				$('#logCount').text(logHeader);
-			});
-			
-			// If a call sign was pushed to the log form, take care of it...
-			socket.on('push_call_form', function(msg) {
-				$('.callField input').val(msg.callSignPush);
-				
-				// Animate the call sign text box so that it flashes red
-				$('.callField input').each(function() {
-					$(this)
-						.animate({backgroundColor:'red'}, 400, 'linear')
-						.delay(400)
-						.animate({backgroundColor:'white'}, 2800, 'easeOutCirc');
-				})
-				
-			});
-			
-			// If a message was received, but it in the messageBox...
-			socket.on('push_msg_box', function(msg) {
-				$('textarea#messageBox').val(msg.messageBox);
-				
-				// Animate the call sign text box so that it flashes red
-				$('textarea#messageBox').each(function() {
-					$(this)
-						.animate({backgroundColor:'yellow'}, 400, 'linear')
-						.delay(400)
-						.animate({backgroundColor:'white'}, 2800, 'easeOutCirc');
-				})
-				
-			});
-			
-			// If the frequency was changed, push it to all clients...
-			socket.on('push_set_freq', function(msg) {
-				$('.freq_field input').val(msg.freq);
-				
-				// Animate the call sign text box so that it flashes green
-				$('.freq_field input').each(function() {
-					$(this)
-						.animate({backgroundColor:'green'}, 400, 'linear')
-						.delay(400)
-						.animate({backgroundColor:'white'}, 2800, 'easeOutCirc');
-				})
-				
-			});
-			
-			// If a display frequency event was received, take care of it...
-			socket.on('display_freq', function(msg) {
-				$('.freq_field input').val(msg.freq);
-				//alert(msg.freq);
-			});
-			
-			$(document).on("click touchstart", "#set_freq", function(e) {
-				// If the Set frequency button was pressed, send a set frequency message to the server
-				e.preventDefault();
-				frequency = $("#freq").val();
-				socket.emit('set_freq', {frequency: frequency});
-	            return false;
-				
-			});
+	});
 
-			$(document).on("mousedown touchstart", "#ptt_button", function(e) {
-				// If the PTT button was pressed, send a transmit message to the server
-				e.preventDefault();
-				socket.emit('ptt_control', {data: "transmit"});
-	            return false;
-				
-			});
-			
-			$(document).on("mousedown touchstart", "#mute_button", function(e) {
-				// If the mute button was pressed, send a mute message to the server
-				e.preventDefault();
-				socket.emit('mute_control', {data: "mute"});
-	            return false;
-				
-			});
-			
-			$(document).on("mouseup touchend", "#ptt_button", function(e) {
-				// If the PTT button was depressed, send a receive message to the server
-				e.preventDefault();
-				socket.emit('ptt_control', {data: "receive"});
-	            return false;
-				
-			});
-			
-			$(document).on("click touchstart", "#push_call", function(e) {
-				// Push the callsign to the server
-				e.preventDefault();
-				callSign = $("#call").val();
-				socket.emit('push_call', {callSign: callSign});
-	            return false;
+// If a ptt event was received, take care of it...
+socket.on('ptt_control_response', function(msg) {
+	if (msg.data == "transmit") {
+		// If the server sent a transmit message, change the button color to red
+		$("#ptt_button").removeClass("rcv");
+		$("#ptt_button").addClass("xmit");
+		$("#rig_status").text("Transmitting")
+	}
+	else if (msg.data == "receive") {
+		// If the server sent a receive message, change the button color to green
+		$("#ptt_button").removeClass("xmit");
+		$("#ptt_button").addClass("rcv");
+		$("#rig_status").text("")
+	}
 
-			});
-			
-			$(document).on("click touchstart", "#submit_msg", function(e) {
-				// Push the message to the server
-				e.preventDefault();
-				message = $("#messageBox").val();
-				socket.emit('submit_msg', {messageBox: message});
-	            return false;
+         });
 
-			});
-			
-			$(document).on("click touchstart", "#submit_entry", function(e) {
-				// If the Submit Log button was pressed, send a submit_entry message to the server
-				e.preventDefault();
-				
-				freq = $("#freq_field").val();
-				mode = $("#mode").val();
-				call = $("#call").val();
-				rst_sent = $("#rst_sent").val();
-				rst_rcvd = $("#rst_rcvd").val();
-				station_class = $("#station_class").val();
-				qth = $("#qth").val();
-				name = $("#name").val();
-				op = $("#op").val();
-				
-				socket.emit('submit_entry', {freq: freq, mode: mode, call: call, rst_sent: rst_sent, rst_rcvd: rst_rcvd, station_class: station_class, qth: qth, name: name, op: op});
-				
-				// Clear some fields
-				$('.callField input').val("");
-				$('.qthField input').val("");
-				$('.nameField input').val("");
-				
-	            return false;
-				
-			});
-			
-			// Make the call sign field uppercase
-			$('#call').keyup(function(){
-				this.value=this.value.toUpperCase();
-			});
-			
-			// Make the qth field uppercase
-			$('#qth').keyup(function(){
-				this.value=this.value.toUpperCase();
-			});
+// If a mute control response event was received, take care of it...
+socket.on('mute_control_response', function(msg) {
+	if (msg.data == "mute_on") {
+		// If the server sent a transmit message, change the button color to red
+		//$("#mute_status").text("Muted")
+		$("#mute_button").text("Un-Mute");
+	}
+	else if (msg.data == "mute_off") {
+		// If the server sent a receive message, change the button color to green
+		//$("#mute_status").text("")
+		$("#mute_button").text("Mute");
+	}
 
-        });
-		
-    </script>
-
-	<title>W1TTL Rig Control</title>
+         });
+         
+// If an log catalog update was received, take care of it...
+socket.on('update_log_catalog', function(msg) {
+	var $logCatalog = $("#log_name");
+	$logCatalog.empty(); // Remove old options
+	$.each(msg.logCatalog, function(key, value) {
+		[logNameID, logName] = value.split(",");
+		$logCatalog.append($("<option></option>")
+			.attr("value", logNameID).text(logName));
+	});
 	
-</head>
+});
+
+// If an update log event was received, take care of it...
+socket.on('update_log', function(msg) {
+	$('#log').html(msg.logTable);
+	
+	// Animate the first row of the log so that it flashes yellow
+	$('#logRow-1').each(function() {
+		$(this)
+			.animate({backgroundColor:'yellow'}, 400, 'linear')
+			.delay(400)
+			.animate({backgroundColor:'white'}, 2800, 'easeOutCirc');
+	})	
+	logHeader = "Log (" + msg.logCount + " entries)"
+	$('#logCount').text(logHeader);
+});
+
+// If a full log load event was received, take care of it...
+socket.on('load_log', function(msg) {
+	$('#log').html(msg.logTable);
+	logHeader = "Log (" + msg.logCount + " entries)"
+	$('#logCount').text(logHeader);
+});
+
+// If a call sign was pushed to the log form, take care of it...
+socket.on('push_call_form', function(msg) {
+	$('.callField input').val(msg.callSignPush);
+	
+	// Animate the call sign text box so that it flashes yellow
+	$('.callField input').each(function() {
+		$(this)
+			.animate({backgroundColor:'yellow'}, 400, 'linear')
+			.delay(400)
+			.animate({backgroundColor:'white'}, 2800, 'easeOutCirc');
+	})
+	
+});
+
+// If a message was received, but it in the messageBox...
+socket.on('push_msg_box', function(msg) {
+	$('textarea#messageBox').val(msg.messageBox);
+	
+	// Animate the call sign text box so that it flashes red
+	$('textarea#messageBox').each(function() {
+		$(this)
+			.animate({backgroundColor:'yellow'}, 400, 'linear')
+			.delay(400)
+			.animate({backgroundColor:'white'}, 2800, 'easeOutCirc');
+	})
+	
+});
+
+// If the frequency was changed, push it to all clients...
+socket.on('push_set_freq', function(msg) {
+	$('.freq_field input').val(msg.freq);
+	
+	// Animate the call sign text box so that it flashes green
+	$('.freq_field input').each(function() {
+		$(this)
+			.animate({backgroundColor:'green'}, 400, 'linear')
+			.delay(400)
+			.animate({backgroundColor:'white'}, 2800, 'easeOutCirc');
+	})
+	
+});
+
+// If a display frequency event was received, take care of it...
+socket.on('display_freq', function(msg) {
+	$('.freq_field input').val(msg.freq);
+	//alert(msg.freq);
+});
+
+$(document).on("click touchstart", "#set_freq", function(e) {
+	// If the Set frequency button was pressed, send a set frequency message to the server
+	e.preventDefault();
+	frequency = $("#freq").val();
+	socket.emit('set_freq', {frequency: frequency});
+          return false;
+	
+});
+
+$(document).on("mousedown touchstart", "#ptt_button", function(e) {
+	// If the PTT button was pressed, send a transmit message to the server
+	e.preventDefault();
+	socket.emit('ptt_control', {data: "transmit"});
+          return false;
+	
+});
+
+$(document).on("mousedown touchstart", "#mute_button", function(e) {
+	// If the mute button was pressed, send a mute message to the server
+	e.preventDefault();
+	socket.emit('mute_control', {data: "mute"});
+          return false;
+	
+});
+
+$(document).on("mouseup touchend", "#ptt_button", function(e) {
+	// If the PTT button was depressed, send a receive message to the server
+	e.preventDefault();
+	socket.emit('ptt_control', {data: "receive"});
+          return false;
+	
+});
+
+$(document).on("click touchstart", "#push_call", function(e) {
+	// Push the callsign to the server
+	e.preventDefault();
+	callSign = $("#call").val();
+	socket.emit('push_call', {callSign: callSign});
+          return false;
+
+});
+
+$(document).on("click touchstart", "#submit_msg", function(e) {
+	// Push the message to the server
+	e.preventDefault();
+	message = $("#messageBox").val();
+	socket.emit('submit_msg', {messageBox: message});
+          return false;
+
+});
+
+$(document).on("click touchstart", "#submit_entry", function(e) {
+	// If the Submit Log button was pressed, send a submit_entry message to the server
+	e.preventDefault();
+	
+	freq = $("#freq_field").val();
+	mode = $("#mode").val();
+	call = $("#call").val();
+	rst_sent = $("#rst_sent").val();
+	rst_rcvd = $("#rst_rcvd").val();
+	station_class = $("#station_class").val();
+	qth = $("#qth").val();
+	name = $("#name").val();
+	op = $("#op").val();
+	
+	socket.emit('submit_entry', {freq: freq, mode: mode, call: call, rst_sent: rst_sent, rst_rcvd: rst_rcvd, station_class: station_class, qth: qth, name: name, op: op});
+	
+	// Clear some fields
+	$('.callField input').val("");
+	$('.qthField input').val("");
+	$('.nameField input').val("");
+	
+          return false;
+	
+});
+
+// Make the call sign field uppercase
+$('#call').keyup(function(){
+	this.value=this.value.toUpperCase();
+});
+
+// Make the qth field uppercase
+$('#qth').keyup(function(){
+	this.value=this.value.toUpperCase();
+});
+
+     });
+
+</script>
 
 <body>
 	<div class="container">
 	    <div class="pb-2 mt-4 mb-2 border-bottom">
-		    <h1>W1TTL Rig Control</h1>
-		    <!-- <p>Async mode is: <b>{{ async_mode }}</b></p> -->
-		    <h5><div id="motd"></div></h5>
-		
-			<!--
-			<form class="form-inline">
-				<div class="form-group col-sm-1">
-					<button type="button" class="btn btn-primary mb-2" id="ptt_button">PTT</button>
-				</div>
-				<div class="form-group col-sm-1">
-					<div id = "rig_status"></div>
-				</div>
-			</form>
+			<h5><div id="motd"></div></h5>
 			
-			<form class="form-inline">
-				<div class="form-group col-sm-1">
-					<button type="button" class="btn btn-primary mb-2" id="mute_button">Mute</button>
-				</div>
-				<div class="form-group col-sm-1">
-					<div id = "mute_status"></div>
-				</div>
-			</form>
-			-->
+			<!--   <h2>Rig Controls</h2>  -->
 			
-			<h2>Rig Controls</h2>
+			<div class="btn-group" role="group" aria-label="PTT and Mute">
+				<button type="button" class="btn btn-primary mb-2" id="ptt_button">PTT</button>
+				<button type="button" class="btn btn-primary mb-2" id="mute_button">Mute</button>
+			</div>
+
+			<div class="input-group">
+  				<textarea class="form-control" id="messageBox" rows="4" aria-describedby="submit_msg"></textarea>
+  				<button type="button" class="btn btn-secondary" id="submit_msg">Send Message</button>
+			</div>
 			
-			<form id="controlsForm">
-				<div class="form-row">
-					<div class="form-group col-sm-2">
-						<button type="button" class="btn btn-primary mb-2" id="ptt_button">PTT</button>
-					</div>
-					<div class="form-group col-sm-2">
-						<button type="button" class="btn btn-primary mb-2" id="mute_button">Mute</button>
-					</div>
-				</div>
-			</form>
-			
-			<form id="messageForm">
-				<!--   
-				<div class="form-row">
-					<div class="form-group col-md-6">
-						<label for="messageBox">Message</label>
-						<textarea class="form-control" id="messageBox" rows="2"></textarea>
-					</div>
-				</div>
-				<div class="form-row">
-					<div class="form-group col-sm-2">
-						<button type="button" class="btn btn-secondary" id="submit_msg">
-							 Send Message
-						</button>
-					</div>
-				</div>
-				-->
-				<div class="form-row">
-					<div class="form-group col-md-8">
-						<label for="messageBox">Message Box</label>
-						<div class="input-group">
-							<textarea class="form-control" id="messageBox" rows="4"></textarea>
-							<div class="input-group">
-								<button type="button" class="btn btn-secondary" id="submit_msg">Send Message</button>
-							</div>
+
+			<div class="pb-2 mt-4 mb-2">	
+				<h2>QSO</h2>
+				
+				<form class="row g-3" id="logForm">
+					<div class="col-md-2">
+						<label for="freq_field" class="form-label">Frequency</label>
+						<div class="input-group mb-3">
+							<input type="text" id="freq_field" class="form-control" aria-describedby="set_freq">
+							<button type="button" class="btn btn-outline-primary" id="set_freq">Set</button>
 						</div>
 					</div>
-				</div>
-			</form>
-			
-			<h2>QSO</h2>
-			
-			<form id="logForm">
-				<div class="form-row">
-				
-					<div class="form-group col-sm-2">
-						<label for="freq_field">Frequency</label>
-						<div class="input-group freqField">
-							<input type="text" id="freq_field" class="form-control">
-							<div class="input-group-append">
-								<button type="button" class="btn btn-outline-primary" id="set_freq">Set</button>
-							</div>
-						</div>
-					</div>
-					
-				</div>
-				
-				<div class="form-row">
-					
-					<div class="form-group col-sm-2">
-						<label for="mode">Mode</label>
-						<select id="mode" class="form-control">
+					<div class="col-md-2">
+						<label for="mode" class="form-label">Mode</label>
+						<select id="mode" class="form-select">
+							<option value="AM">AM</option>
 							<option value="CW">CW</option>
-							<option value="PH" selected>Phone</option>
-							<option value="RY">Other Digital</option>
+							<option value="FT8">FT-8</option>
+							<option value="OTHER">Other Mode</option>
+							<option value="PSK31">PSK31</option>
+							<option value="RY">RTTY</option>
+							<option value="SSB" selected>SSB</option>
 						</select>
 					</div>
 					
-					<!--  
-					<div class="form-group col-sm-2">
-						<label for="call">Call Sign</label>
-						<div class="callField">
-							<input type="text" id="call" class="form-control">
+					<div class="col-md-3">
+						<label for="call" class="form-label">Call Sign</label>
+						<div class="input-group mb-3 callField">
+							<input type="text" id="call" class="form-control" aria-describedby="push_call">
+							<button type="button" class="btn btn-outline-primary" id="push_call">Push Call Sign</button>
 						</div>
 					</div>
-					
-					<div class="form-group col-md-2 align-self-end">
-						<button type="button" class="btn btn-secondary" id="push_call">Push Callsign</button>
-					</div>	
-					-->
-					  
-					<div class="form-group col-sm-4">
-						<label for="call">Call Sign</label>
-						<div class="input-group callField">
-							<input type="text" id="call" class="form-control">
-							<div class="input-group-append">
-								<button type="button" class="btn btn-outline-primary" id="push_call">Push Call Sign</button>
-							</div>
-						</div>
-					</div>
-					
-				</div>
-				
-				<div class="form-row">
-					<div class="form-group col-sm-2">
-						<label for="rst_sent">RS(T) Sent</label>
+					<div class="col-md-2">
+						<label for="rst_sent" class="form-label">RS(T) Sent</label>
 						<input type="text" id="rst_sent" class="form-control">
 					</div>
-					
-					<div class="form-group col-sm-2">
-						<label for="rst_rcvd">RS(T) Received</label>
+					<div class="col-md-2">
+						<label for="rst_rcvd" class="form-label">RS(T) Received</label>
 						<input type="text" id="rst_rcvd" class="form-control">
 					</div>
-					
-					<div class="form-group col-sm-2">
-						<label for="station_class">Class</label>
-							<select id="station_class" class="form-control">
-								<option value="I">Individual</option>
-								<option value="C">Club</option>
-								<option value="S">School</option>
-							</select>
+					<div class="col-md-2">
+						<label for="station_class" class="form-label">Class</label>
+						<select id="station_class" class="form-select">
+							<option value="I">Individual</option>
+							<option value="C">Club</option>
+							<option value="S">School</option>
+						</select>
 					</div>
-				</div>
-				
-				<div class="form-row">
-					<div class="form-group col-sm-2">
-						<label for="qth">QTH</label>
+					<div class="col-md-4">
+						<label for="qth" class="form-label">QTH</label>
 						<div class="qthField">
 							<input type="text" id="qth" class="form-control" aria-describedby="qthHelpLabel">
 							<small id="qthHelpLabel" class="text-muted">
-								2-letter abbreviation for US states or CN provinces/territories, DX otherwise.
+								In SCR, this is a 2-letter abbreviation for US states or CN provinces/territories, DX otherwise.
 							</small>
 						</div>
 					</div>
-					
-					<div class="form-group col-sm-2">
-						<label for="name">Name Received</label>
+					<div class="col-md-4">
+						<label for="name" class="form-label">Name Received</label>
 						<div class="nameField">
 							<input type="text" id="name" class="form-control">
 						</div>
 					</div>
-					
-					<div class="form-group col-sm-2">
-						<label for="op">Operator</label>
+					<div class="col-md-4">
+						<label for="op" class="form-label">Operator</label>
 						<div class="opField">
 							<input type="text" id="op" class="form-control">
 						</div>
 					</div>
 					
-				</div>
-
-				<div class="form-row">
-					<div class="form-group col-sm-2">
-						<button type="button" class="btn btn-primary" id="submit_entry">
-							 Submit Log
-						</button>
+					<div class="col-12">
+						<button type="button" class="btn btn-primary" id="submit_entry">Submit Log</button>
 					</div>
-				</div>
-
-			</form>
+				
+				</form>
+			</div>
+			
 		</div>
 
 		<div class="pb-2 mt-4 mb-2">
 			<h2 id="logCount">Log</h2>
-		    <div id="log"></div>
+			<div class="col-md-4">
+				<select id="log_name" class="form-select">
+				</select>
+			</div>
+		    <!--  <div id="log"></div>  -->
+		</div>
+		<div id="log" class="pb-2 mt-4 mb-2">
 		</div>
 		
 	</div>
 </body>
 </html>
+{% endblock %}
