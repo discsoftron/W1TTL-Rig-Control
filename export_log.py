@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import csv, re
 
-inputFile = "log.csv"
-outputFile = "log.txt"
+inputFile = "2.csv"
+outputFile = "2.txt"
 
 contest = "ARRL-SCR"
 # "CLASS-I" for individual.
@@ -96,6 +96,10 @@ for logLine in logLines:
     
     if (mo == "PH"):
         phCount = phCount + 1
+    elif (mo == "SSB"):
+        phCount = phCount + 1
+    elif (mo == "AM"):
+        phCOunt = phCount + 1
     elif (mo == "CW"):
         cwCount = cwCount + 1
     elif (mo == "RY"):
