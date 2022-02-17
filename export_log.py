@@ -98,8 +98,10 @@ for logLine in logLines:
         phCount = phCount + 1
     elif (mo == "SSB"):
         phCount = phCount + 1
+        mo = "PH"
     elif (mo == "AM"):
         phCOunt = phCount + 1
+        mo = "PH"
     elif (mo == "CW"):
         cwCount = cwCount + 1
     elif (mo == "RY"):
