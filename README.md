@@ -31,7 +31,7 @@ Create a user called "rig" and clone the W1TTL Rig Control repository into the h
     
 It is assumed that you already have Python3 and pip3 installed.  Install Flask with sudo and Flask-SocketIO as the rig account with the following command.  Don't forget -- if rig is not a sudoer, be sure to put the rig account in the sudo group in /etc/group.
 
-    sudo pip3 install Flask
+    sudo pip3 install Flask pyserial
     sudo pip3 install Flask-SocketIO==4.3.2
 
 You have to use version 4.3.2 of Flask-SocketIO otherwise you will get a "The client is using an unsupported version of the Socket.IO or Engine.IO protocols (further occurrences of this error will be logged with level INFO)" error in your console when running rig.py.
