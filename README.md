@@ -53,10 +53,6 @@ And now W1TTL rig control should be listening on port 5000 and you can connect t
 
 `rig.py`: The main application file
 
-`motd.txt`: The message of the day -- a file with a single line.  This appears at the top of the web page and cannot be changed by students.
-
-`message.txt`: A message that can be edited within the webpage by anyone.  I usually put a QSO script in here like, "CQ CQ CQ this is W1HLO calling CQ."
-
 `log.csv`: The QSO log in csv format.
 
 `export_log.py`: This will export the QSO log in Cabrillo format with the information needed for submitting directly to SCR.  The exported file will be saved as `log.txt`.  To run this program, enter:
