@@ -64,7 +64,3 @@ And now W1TTL rig control should be listening on port 5000 and you can connect t
 ## Configuration
 
 Editing `rig.py` or `export_log.py`, you will see where you can change the relay GPIO pins (if needed) as well as any file names at the top of the program.
-
-## Credits
-
-Please e-mail the author, Anthony Girasoli, W1TTL, with any comments or suggestions at tron@girasoli.org.
