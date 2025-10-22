@@ -29,12 +29,22 @@ Create a user called "rig" and clone the W1TTL Rig Control repository into the h
 
     git clone https://github.com/discsoftron/W1TTL-Rig-Control.git
     
-It is assumed that you already have Python3 and pip3 installed.  Install Flask with sudo and Flask-SocketIO as the rig account with the following command.  Don't forget -- if rig is not a sudoer, be sure to put the rig account in the sudo group in /etc/group.
+It is assumed that you already have Python3 and pip3 installed.  First, install venv:
 
-    sudo pip3 install Flask pyserial
-    sudo pip3 install Flask-SocketIO==4.3.2
+    python -m venv venv
 
-You have to use version 4.3.2 of Flask-SocketIO otherwise you will get a "The client is using an unsupported version of the Socket.IO or Engine.IO protocols (further occurrences of this error will be logged with level INFO)" error in your console when running rig.py.
+Then, activate venv:
+
+    source venv/bin/activate
+    
+You'll have to use certain versions of packages, so install them with pip as follows in this order:
+
+    pip install Flask-SocketIO==4.3.1
+    pip install python-engineio==3.13.2
+    pip install python-socketio==4.6.0
+    pip install Flask==2.0.3
+    pip install Werkzeug==2.0.3
+    pip install serial
 
 Lastly, you will need to add the rig user to the gpio group in /etc/group otherwise you will get a "RuntimeError: Not running on a RPi!" message when running rig.py.  Edit /etc/group, find the line that has <code>gpio:x:997:pi</code> and add a comma and the rig user to the end of the line so the whole like looks like this:
 
@@ -45,7 +55,7 @@ Save and exit your editor and log out of rig and log back in so that the new gro
 Then, while logged in as the rig user, change to the W1TTL-Rig-Control directory and run the application:
 
     cd W1TTL-Rig-Control
-    python3 rig.py
+    python rig.py
   
 And now W1TTL rig control should be listening on port 5000 and you can connect to it on your browser with http://hostname:5000/ (Where "hostname" is the IP Address or host name of your Raspberry Pi.)
 
